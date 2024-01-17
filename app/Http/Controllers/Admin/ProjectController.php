@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Project;
 use App\Models\Category;
+use App\Models\Technology;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
 use App\Http\Controllers\Controller;
@@ -26,8 +27,9 @@ class ProjectController extends Controller
      */
     public function create()
     {
+        $technologies = Technology::all();
         $categories = Category::all();
-        return view('admin.projects.create', compact('categories'));
+        return view('admin.projects.create', compact('categories', 'technologies'));
     }
 
     /**
@@ -45,6 +47,9 @@ class ProjectController extends Controller
             $form_data['image'] = $path;
         }
         $newProject = Project::create($form_data);
+        if ($request->has('technologies')) {
+            $newProject->technologies()->attach($request->technologies);
+        }
         return to_route('admin.projects.show', $newProject->slug);
 
     }
@@ -62,8 +67,9 @@ class ProjectController extends Controller
      */
     public function edit(Project $project)
     {
+        $technologies = Technology::all();
         $categories = Category::all();
-        return view('admin.projects.edit', compact('project', 'categories'));
+        return view('admin.projects.edit', compact('project', 'categories', 'technologies'));
     }
 
     /**
@@ -86,6 +92,11 @@ class ProjectController extends Controller
             $form_data['image'] = $path;
         }
         $project->update($form_data);
+        if ($request->has('technologies')) {
+            $project->technologies()->sync($request->technologies);
+        } else {
+            $project->technologies()->detach();
+        }
         return to_route('admin.projects.show', $project->slug);
     }
 
@@ -94,6 +105,10 @@ class ProjectController extends Controller
      */
     public function destroy(Project $project)
     {
+        $project->tags->detatch();
+        if ($project->image) {
+            Storage::delete($project->image);
+        }
         $project->delete();
         return to_route('admin.projects.index')->with('message', "$project->title eliminato con successo!");
     }
