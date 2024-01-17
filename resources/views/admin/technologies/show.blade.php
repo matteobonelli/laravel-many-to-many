@@ -3,12 +3,12 @@
     <section class="container" id='projects_index'>
         <h1>{{$technology->name}}</h1>
         <ul>
-            @if($technology->projects)
-            @foreach ($technology->projects as $project)
+            @forelse ($technology->projects as $project)
                 <li>{{$project->title}}</li>
+            @empty
                 <li>No posts</li>
-            @endforeach
-            @endif
+            @endforelse
         </ul>
+        
     </section>
 @endsection
