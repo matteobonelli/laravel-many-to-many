@@ -13,6 +13,7 @@
                     <a href="{{route('admin.technologies.show', $technology->slug)}}">
                         <h2>{{$technology->name}}</h2>
                     </a>
+                    @if (Auth::id() == 1)
                     <div class="p-3">
                         <a class="btn btn-primary my-2" href="{{route('admin.technologies.edit', $technology->slug)}}">Modifica</a>
                         <form action="{{route('admin.technologies.destroy', $technology->slug)}}" method="POST">
@@ -21,7 +22,7 @@
                         <button type="submit" class="btn btn-danger">Elimina</button>
                         </form>
                     </div>
-                    
+                    @endif
                 </div>
             </div>
             @endforeach

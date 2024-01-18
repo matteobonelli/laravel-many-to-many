@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Technology;
 use App\Http\Requests\StoreTechnologyRequest;
 use App\Http\Requests\UpdateTechnologyRequest;
+use Illuminate\Support\Facades\Auth;
 
 class TechnologyController extends Controller
 {
@@ -51,6 +52,10 @@ class TechnologyController extends Controller
      */
     public function edit(Technology $technology)
     {
+        $currentUserId = Auth::id();
+        if ($currentUserId != 1) {
+            abort(403);
+        }
         return view('admin.technologies.edit', compact('technology'));
     }
 
@@ -74,6 +79,10 @@ class TechnologyController extends Controller
      */
     public function destroy(Technology $technology)
     {
+        $currentUserId = Auth::id();
+        if ($currentUserId != 1) {
+            abort(403);
+        }
         $technology->delete();
         return to_route('admin.technologies.index')->with('message', "$technology->title eliminato con successo!");
     }

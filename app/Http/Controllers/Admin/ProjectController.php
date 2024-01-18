@@ -10,6 +10,7 @@ use App\Http\Requests\UpdateProjectRequest;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class ProjectController extends Controller
 {
@@ -18,7 +19,13 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        $projects = Project::all();
+        $currentUserId = Auth::id();
+        if ($currentUserId == 1) {
+            $projects = Project::paginate(10);
+        } else {
+            $projects = Project::where('user_id', $currentUserId)->paginate(5);
+        }
+        $projects = Project::where('user_id', $currentUserId)->paginate(5);
         return view('admin.projects.index', compact('projects'));
     }
 
@@ -59,7 +66,12 @@ class ProjectController extends Controller
      */
     public function show(Project $project)
     {
-        return view('admin.projects.show', compact('project'));
+        $currentUserId = Auth::id();
+        if ($currentUserId == $project->id || $currentUserId == 1) {
+            return view('admin.projects.show', compact('project'));
+        }
+        abort(403);
+
     }
 
     /**
@@ -67,9 +79,15 @@ class ProjectController extends Controller
      */
     public function edit(Project $project)
     {
+        $currentUserId = Auth::id();
+        if ($currentUserId != $project->id && $currentUserId != 1) {
+            abort(403);
+        }
         $technologies = Technology::all();
         $categories = Category::all();
         return view('admin.projects.edit', compact('project', 'categories', 'technologies'));
+
+
     }
 
     /**
@@ -77,6 +95,10 @@ class ProjectController extends Controller
      */
     public function update(UpdateProjectRequest $request, Project $project)
     {
+        $currentUserId = Auth::id();
+        if ($currentUserId != $project->id && $currentUserId != 1) {
+            abort(403);
+        }
         $form_data = $request->validated();
         $form_data['slug'] = $project->slug;
         if ($project->title !== $form_data['title']) {
@@ -105,7 +127,11 @@ class ProjectController extends Controller
      */
     public function destroy(Project $project)
     {
-        $project->tags->detatch();
+        $currentUserId = Auth::id();
+        if ($currentUserId != $project->id && $currentUserId != 1) {
+            abort(403);
+        }
+        // $project->tags->detatch(); //non necessario se cascadeOnDelete
         if ($project->image) {
             Storage::delete($project->image);
         }

@@ -23,7 +23,7 @@ return new class extends Migration {
                 ->on('technologies')
                 ->cascadeOnDelete();
             //$table->primary(['project_id', 'technology_id']);
-            $table->timestamps();
+            $table->timestamps(); // togliere il timestamp
         });
     }
 

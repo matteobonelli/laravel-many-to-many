@@ -31,5 +31,6 @@
             
         
         </div>
+        {{$projects->links('vendor.pagination.bootstrap-5')}}
     </section>
 @endsection
